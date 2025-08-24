@@ -1,0 +1,186 @@
+# PMAT Configuration for EU-USA Data Pipeline Course
+# Project Management and Tracking
+
+[project]
+name = "eu-usa-data-pipeline"
+version = "1.0.0"
+description = "Production-grade EU to USA data conversion pipeline with Deno"
+language = "typescript"
+framework = "deno"
+
+[quality_gate]
+# Complexity limits
+max_cyclomatic_complexity = 10
+max_cognitive_complexity = 15
+max_nesting_depth = 4
+max_parameters = 3
+max_lines_per_function = 50
+max_lines_per_file = 300
+
+# Quality requirements
+max_satd_comments = 0           # Zero tolerance for technical debt
+min_test_coverage = 70.0         # Week 1 target, increases to 90% by Week 4
+max_duplicate_lines = 0
+max_code_smells = 0
+
+# File size limits
+max_file_size_kb = 100
+warn_file_size_kb = 50
+
+[commit]
+# Commit standards
+max_lines_changed = 50
+max_files_changed = 5
+require_ticket_reference = true
+commit_message_pattern = "^(feat|fix|docs|test|refactor|perf|style|chore)(\\([A-Z]+-\\d+\\))?: .+"
+min_commit_message_length = 20
+max_time_between_commits_minutes = 30
+
+# Commit message examples:
+# feat(PIPE-001): implement EUR to USD currency converter
+# fix(PIPE-002): handle negative currency amounts correctly
+# test(PIPE-003): add edge cases for date converter
+# docs(PIPE-004): update API documentation for pipeline
+
+[documentation]
+# Required documentation updates per commit
+required_updates = [
+  "ROADMAP.md",
+  "docs/quality-gates.md",
+  "CHANGELOG.md"
+]
+
+# Documentation standards
+require_jsdoc_public_functions = true
+require_readme_in_modules = true
+require_examples_in_docs = true
+
+[hooks]
+# Pre-commit hooks
+pre_commit = [
+  "deno fmt --check",
+  "deno lint",
+  "deno test --quiet",
+  "deno task satd:check"
+]
+
+# Post-commit hooks  
+post_commit = [
+  "echo '✅ Commit successful'"
+]
+
+# Pre-push hooks
+pre_push = [
+  "deno task quality",
+  "deno task test:coverage",
+  "deno task satd:check"
+]
+
+[typescript]
+# TypeScript specific rules
+strict_mode = true
+no_any = true
+no_implicit_any = true
+no_unused_vars = true
+prefer_const = true
+explicit_return_types = true
+
+[testing]
+# Testing requirements
+min_unit_test_coverage = 70.0      # Week 1
+min_integration_test_coverage = 50.0 # Week 1
+min_e2e_test_coverage = 0.0        # Week 1 (increases later)
+require_test_for_public_functions = true
+test_file_pattern = "**/*.test.ts"
+benchmark_file_pattern = "**/*.bench.ts"
+
+[performance]
+# Performance targets
+max_function_execution_ms = 100
+max_api_response_ms = 100
+max_memory_usage_mb = 512
+min_throughput_records_per_second = 1000
+
+# Benchmark requirements
+require_benchmarks_for_converters = true
+benchmark_regression_threshold = 0.1  # 10% regression triggers failure
+
+[security]
+# Security checks
+no_hardcoded_secrets = true
+no_console_log_in_production = true
+require_input_validation = true
+require_output_sanitization = true
+max_dependency_vulnerabilities = 0
+
+[dependencies]
+# Dependency management
+max_dependencies = 20
+max_dev_dependencies = 10
+require_exact_versions = true
+audit_on_install = true
+update_check_frequency = "weekly"
+
+[monitoring]
+# Code metrics to track
+track_metrics = [
+  "complexity",
+  "coverage",
+  "performance",
+  "satd_count",
+  "dependency_count"
+]
+
+# Alerting thresholds
+alert_on_coverage_drop = 5.0  # Alert if coverage drops by 5%
+alert_on_complexity_increase = 2
+alert_on_performance_regression = 0.1
+
+[workflow]
+# Development workflow
+feature_branch_pattern = "feature/.*"
+bugfix_branch_pattern = "fix/.*"
+release_branch_pattern = "release/.*"
+require_pr_review = true
+require_ci_pass = true
+
+[reporting]
+# Progress reporting
+weekly_report = true
+sprint_velocity_tracking = true
+quality_metrics_dashboard = true
+performance_trending = true
+
+[ai_assistance]
+# AI programming configuration
+ai_code_review_enabled = true
+ai_test_generation_enabled = true
+ai_documentation_enabled = true
+track_ai_usage_metrics = true
+ai_suggestion_threshold = 0.8  # Confidence threshold for AI suggestions
+
+[course]
+# Course-specific settings
+current_week = 1
+current_sprint = "1.1"
+track_student_progress = true
+auto_grade_submissions = true
+provide_feedback = true
+
+# Week-specific quality gates
+[course.week_1]
+min_test_coverage = 70.0
+max_complexity = 15
+
+[course.week_2]
+min_test_coverage = 80.0
+max_complexity = 12
+
+[course.week_3]
+min_test_coverage = 85.0
+max_complexity = 10
+
+[course.week_4]
+min_test_coverage = 90.0
+max_complexity = 10
+max_satd_comments = 0
