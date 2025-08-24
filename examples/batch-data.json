@@ -1,0 +1,64 @@
+[
+  {
+    "id": "batch-001",
+    "currency": { "amount": 100 },
+    "dates": ["01/01/2025"],
+    "address": {
+      "street": "Main Street",
+      "houseNumber": "100",
+      "postalCode": "12345",
+      "city": "Munich",
+      "country": "Germany"
+    }
+  },
+  {
+    "id": "batch-002",
+    "currency": { "amount": 250.75 },
+    "measurements": [
+      { "value": 50, "unit": "km" },
+      { "value": 30, "unit": "celsius" }
+    ],
+    "phone": "+44 20 7946 0958"
+  },
+  {
+    "id": "batch-003",
+    "currency": { "amount": 999.99 },
+    "numbers": ["1.234,56", "9.876,54"],
+    "vat": {
+      "amount": 500,
+      "rate": 0.21,
+      "country": "ES"
+    }
+  },
+  {
+    "id": "batch-004",
+    "dates": ["15/06/2024", "25/12/2025"],
+    "privacy": {
+      "requestType": "deletion",
+      "dataCategories": ["personal"],
+      "purposes": ["all"]
+    }
+  },
+  {
+    "id": "batch-005",
+    "currency": { "amount": 5000 },
+    "measurements": [
+      { "value": 200, "unit": "km" },
+      { "value": 100, "unit": "kg" },
+      { "value": 2, "unit": "meters" }
+    ],
+    "address": {
+      "street": "Champs-Élysées",
+      "houseNumber": "75",
+      "postalCode": "75008",
+      "city": "Paris",
+      "country": "France"
+    },
+    "phone": "+33 1 42 86 82 00",
+    "vat": {
+      "amount": 2000,
+      "rate": 0.20,
+      "country": "FR"
+    }
+  }
+]

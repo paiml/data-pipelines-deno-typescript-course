@@ -1,0 +1,111 @@
+# AlertManager configuration for EU-USA Data Pipeline
+global:
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alerts@data-pipeline.com'
+
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'web.hook'
+  routes:
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      group_wait: 0s
+      repeat_interval: 5m
+    - match:
+        severity: warning  
+      receiver: 'warning-alerts'
+      repeat_interval: 2h
+    - match:
+        alertname: ServiceDown
+      receiver: 'service-down'
+      group_wait: 0s
+      repeat_interval: 1m
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'cluster', 'service']
+
+receivers:
+  - name: 'web.hook'
+    webhook_configs:
+      - url: 'http://127.0.0.1:5001/'
+
+  - name: 'critical-alerts'
+    email_configs:
+      - to: 'ops-team@company.com'
+        subject: '🚨 CRITICAL Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Instance: {{ .Labels.instance }}
+          Severity: {{ .Labels.severity }}
+          Time: {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+          {{ end }}
+    slack_configs:
+      - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+        channel: '#ops-critical'
+        title: '🚨 Critical Alert'
+        text: |
+          {{ range .Alerts }}
+          *{{ .Annotations.summary }}*
+          {{ .Annotations.description }}
+          Instance: `{{ .Labels.instance }}`
+          {{ end }}
+
+  - name: 'warning-alerts'
+    email_configs:
+      - to: 'ops-team@company.com'
+        subject: '⚠️  Warning: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Instance: {{ .Labels.instance }}
+          Time: {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+          {{ end }}
+    slack_configs:
+      - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+        channel: '#ops-warnings'
+        title: '⚠️  Warning Alert'
+        text: |
+          {{ range .Alerts }}
+          *{{ .Annotations.summary }}*
+          {{ .Annotations.description }}
+          {{ end }}
+
+  - name: 'service-down'
+    email_configs:
+      - to: 'ops-team@company.com, management@company.com'
+        subject: '🔥 SERVICE DOWN: Data Pipeline'
+        body: |
+          URGENT: Data Pipeline service is down!
+          
+          {{ range .Alerts }}
+          Instance: {{ .Labels.instance }}
+          Started: {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+          {{ end }}
+          
+          Immediate action required.
+    pagerduty_configs:
+      - routing_key: 'YOUR_PAGERDUTY_INTEGRATION_KEY'
+        description: 'Data Pipeline Service Down'
+    slack_configs:
+      - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+        channel: '#ops-critical'
+        title: '🔥 SERVICE DOWN'
+        text: |
+          @channel Data Pipeline service is DOWN!
+          {{ range .Alerts }}
+          Instance: `{{ .Labels.instance }}`
+          {{ end }}

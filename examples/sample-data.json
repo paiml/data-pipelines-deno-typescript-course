@@ -1,0 +1,38 @@
+{
+  "id": "sample-001",
+  "currency": {
+    "amount": 1500.50
+  },
+  "measurements": [
+    { "value": 100, "unit": "km" },
+    { "value": 75, "unit": "kg" },
+    { "value": 22, "unit": "celsius" }
+  ],
+  "dates": [
+    "24/08/2025",
+    "31/12/2024",
+    "01/01/2025"
+  ],
+  "numbers": [
+    "1.234.567,89",
+    "999,99"
+  ],
+  "address": {
+    "street": "Friedrichstraße",
+    "houseNumber": "123A",
+    "postalCode": "10117",
+    "city": "Berlin",
+    "country": "Germany"
+  },
+  "phone": "+49 30 12345678",
+  "vat": {
+    "amount": 1000,
+    "rate": 0.19,
+    "country": "DE"
+  },
+  "privacy": {
+    "requestType": "access",
+    "dataCategories": ["personal", "usage", "financial"],
+    "purposes": ["marketing", "analytics"]
+  }
+}

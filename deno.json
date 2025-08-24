@@ -5,6 +5,10 @@
     "test": "deno test --allow-all",
     "test:watch": "deno test --allow-all --watch",
     "test:coverage": "deno test --allow-all --coverage=coverage",
+    "test:performance": "deno run --allow-all scripts/run-performance-tests.ts",
+    "test:performance:staging": "deno run --allow-all scripts/run-performance-tests.ts --url https://data-pipelines-staging.deno.dev",
+    "test:performance:production": "deno run --allow-all scripts/run-performance-tests.ts --url https://data-pipelines-prod.deno.dev",
+    "test:memory": "deno run --allow-all --v8-flags=--expose-gc tests/performance/simple-memory-test.ts",
     "coverage": "deno coverage coverage",
     "coverage:lcov": "deno coverage coverage --lcov > coverage.lcov",
     "lint": "deno lint",
@@ -12,10 +16,15 @@
     "fmt:check": "deno fmt --check",
     "check": "deno check **/*.ts",
     "bench": "deno bench --allow-all",
+    "bench:performance": "deno bench tests/performance/basic-benchmark.ts",
+    "bench:json": "deno bench --json tests/performance/basic-benchmark.ts",
     "quality": "deno fmt --check && deno lint && deno test --allow-all --coverage=coverage",
     "satd:check": "! grep -r 'TODO\\|FIXME\\|HACK\\|XXX' --include='*.ts' --include='*.tsx' . || (echo '❌ SATD comments found!' && exit 1)",
     "build": "deno compile --allow-all --output=dist/pipeline src/main.ts",
-    "deploy": "deployctl deploy --project=eu-usa-pipeline src/main.ts"
+    "deploy": "deployctl deploy --project=eu-usa-pipeline src/main.ts",
+    "cli": "deno run --allow-all src/cli/pipeline-cli.ts",
+    "pipeline:server": "deno run --allow-all src/cli/pipeline-cli.ts --server",
+    "pipeline:convert": "deno run --allow-all src/cli/pipeline-cli.ts"
   },
   "compilerOptions": {
     "strict": true,

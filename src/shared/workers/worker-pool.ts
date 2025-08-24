@@ -423,4 +423,28 @@ export class WorkerPool {
       await new Promise(resolve => setTimeout(resolve, 100));
     }
   }
+
+  /**
+   * Terminate all workers and clean up resources
+   */
+  terminate(): void {
+    this.isShuttingDown = true;
+    
+    // Terminate all workers
+    for (const [workerId, worker] of this.workers) {
+      worker.terminate();
+    }
+    
+    // Clear all collections
+    this.workers.clear();
+    this.availableWorkers.clear();
+    this.busyWorkers.clear();
+    this.taskQueue = [];
+    
+    // Reject all pending tasks
+    for (const [_, pendingTask] of this.pendingTasks) {
+      pendingTask.reject(new Error("Worker pool terminated"));
+    }
+    this.pendingTasks.clear();
+  }
 }

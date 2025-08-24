@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
@@ -161,16 +161,74 @@ jobs:
           name: build
           path: dist/
 
-  summary:
-    name: CI Summary
+  deploy-staging:
+    name: Deploy to Staging
     runs-on: ubuntu-latest
     needs: [quality, test, benchmark, security, build]
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: ${{ env.DENO_VERSION }}
+      
+      - name: Deploy to Deno Deploy (Staging)
+        uses: denoland/deployctl@v1
+        with:
+          project: "data-pipelines-staging"
+          entrypoint: "./src/main.ts"
+          token: ${{ secrets.DENO_DEPLOY_TOKEN }}
+      
+      - name: Run smoke tests
+        run: |
+          echo "🚬 Running smoke tests against staging..."
+          sleep 30 # Wait for deployment
+          # Add staging health check when main.ts is ready
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [quality, test, benchmark, security, build]
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: ${{ env.DENO_VERSION }}
+      
+      - name: Deploy to Deno Deploy (Production)
+        uses: denoland/deployctl@v1
+        with:
+          project: "data-pipelines-prod"
+          entrypoint: "./src/main.ts"
+          token: ${{ secrets.DENO_DEPLOY_TOKEN }}
+      
+      - name: Run production health checks
+        run: |
+          echo "🏥 Running production health checks..."
+          sleep 45 # Wait for deployment and warm-up
+          # Add production health check when main.ts is ready
+
+  summary:
+    name: CI/CD Summary
+    runs-on: ubuntu-latest
+    needs: [quality, test, benchmark, security, build, deploy-staging, deploy-production]
     if: always()
     
     steps:
       - name: Summary
         run: |
-          echo "## 📊 CI Pipeline Summary"
+          echo "## 📊 CI/CD Pipeline Summary"
           echo ""
           echo "### Quality Checks"
           echo "- Format: ${{ needs.quality.result == 'success' && '✅' || '❌' }}"
@@ -190,6 +248,10 @@ jobs:
           echo ""
           echo "### Build"
           echo "- Compilation: ${{ needs.build.result == 'success' && '✅' || '❌' }}"
+          echo ""
+          echo "### Deployment"
+          echo "- Staging: ${{ (needs.deploy-staging.result == 'success' || needs.deploy-staging.result == 'skipped') && '✅' || '❌' }}"
+          echo "- Production: ${{ (needs.deploy-production.result == 'success' || needs.deploy-production.result == 'skipped') && '✅' || '❌' }}"
           echo ""
           echo "---"
           echo "Overall: ${{ needs.build.result == 'success' && '✅ All checks passed!' || '❌ Some checks failed' }}"

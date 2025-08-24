@@ -1,0 +1,210 @@
+# Prometheus alerting rules for EU-USA Data Pipeline
+groups:
+  - name: data-pipeline-alerts
+    rules:
+      # Service availability
+      - alert: ServiceDown
+        expr: up{job=~"data-pipeline.*"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Data Pipeline service is down"
+          description: "Data Pipeline service {{ $labels.instance }} has been down for more than 30 seconds."
+
+      # High error rate
+      - alert: HighErrorRate
+        expr: |
+          (
+            rate(http_requests_total{status=~"5.."}[5m]) /
+            rate(http_requests_total[5m])
+          ) * 100 > 5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value }}% for {{ $labels.instance }}"
+
+      # Critical error rate
+      - alert: CriticalErrorRate
+        expr: |
+          (
+            rate(http_requests_total{status=~"5.."}[5m]) /
+            rate(http_requests_total[5m])
+          ) * 100 > 15
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical error rate detected"
+          description: "Error rate is {{ $value }}% for {{ $labels.instance }}"
+
+      # High response time
+      - alert: HighResponseTime
+        expr: |
+          histogram_quantile(0.99,
+            rate(http_request_duration_ms_bucket[5m])
+          ) > 2000
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response time detected"
+          description: "99th percentile response time is {{ $value }}ms for {{ $labels.instance }}"
+
+      # Critical response time
+      - alert: CriticalResponseTime
+        expr: |
+          histogram_quantile(0.99,
+            rate(http_request_duration_ms_bucket[5m])
+          ) > 5000
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical response time detected"
+          description: "99th percentile response time is {{ $value }}ms for {{ $labels.instance }}"
+
+      # Circuit breaker alerts
+      - alert: CircuitBreakersOpen
+        expr: circuit_breakers_failed > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Circuit breakers are open"
+          description: "{{ $value }} circuit breakers are in failed state for {{ $labels.instance }}"
+
+      - alert: ManyCircuitBreakersOpen
+        expr: circuit_breakers_failed > 3
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Multiple circuit breakers are open"
+          description: "{{ $value }} circuit breakers are in failed state for {{ $labels.instance }}"
+
+      # Memory usage
+      - alert: HighMemoryUsage
+        expr: |
+          (
+            (system_memory_total_bytes - system_memory_available_bytes) /
+            system_memory_total_bytes
+          ) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is {{ $value }}% for {{ $labels.instance }}"
+
+      - alert: CriticalMemoryUsage
+        expr: |
+          (
+            (system_memory_total_bytes - system_memory_available_bytes) /
+            system_memory_total_bytes
+          ) * 100 > 95
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical memory usage"
+          description: "Memory usage is {{ $value }}% for {{ $labels.instance }}"
+
+      # Cache performance
+      - alert: LowCacheHitRate
+        expr: |
+          (
+            rate(cache_hits_total[5m]) /
+            (rate(cache_hits_total[5m]) + rate(cache_misses_total[5m]))
+          ) * 100 < 50
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low cache hit rate"
+          description: "Cache hit rate is {{ $value }}% for {{ $labels.instance }}"
+
+      # Request rate anomaly
+      - alert: RequestRateDrop
+        expr: |
+          (
+            rate(http_requests_total[5m]) <
+            rate(http_requests_total[1h] offset 1h) * 0.5
+          ) and on() hour() > 8 and on() hour() < 18
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Request rate significantly dropped"
+          description: "Request rate has dropped significantly for {{ $labels.instance }} during business hours"
+
+      # Conversion-specific alerts  
+      - alert: CurrencyConversionFailures
+        expr: |
+          (
+            rate(conversions_total{type="currency",status="failed"}[5m]) /
+            rate(conversions_total{type="currency"}[5m])
+          ) * 100 > 10
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High currency conversion failure rate"
+          description: "Currency conversion failure rate is {{ $value }}% for {{ $labels.instance }}"
+
+      # Dead letter queue alerts
+      - alert: DLQEntriesAccumulating
+        expr: dlq_entries_total > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Dead letter queue entries accumulating"
+          description: "{{ $value }} entries in dead letter queue for {{ $labels.instance }}"
+
+      - alert: DLQCriticalBacklog
+        expr: dlq_entries_total > 1000
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical dead letter queue backlog"
+          description: "{{ $value }} entries in dead letter queue for {{ $labels.instance }}"
+
+  - name: data-pipeline-sli-slo
+    rules:
+      # Service Level Indicators (SLIs)
+      - record: sli:availability:ratio_rate5m
+        expr: |
+          (
+            sum(rate(http_requests_total{status!~"5.."}[5m])) /
+            sum(rate(http_requests_total[5m]))
+          )
+
+      - record: sli:latency:ratio_rate5m
+        expr: |
+          (
+            sum(rate(http_request_duration_ms_bucket{le="100"}[5m])) /
+            sum(rate(http_request_duration_ms_count[5m]))
+          )
+
+      # Service Level Objective (SLO) violations
+      - alert: SLOAvailabilityViolation
+        expr: sli:availability:ratio_rate5m < 0.999
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "SLO availability violation"
+          description: "Availability SLI is {{ $value }}, below 99.9% SLO"
+
+      - alert: SLOLatencyViolation
+        expr: sli:latency:ratio_rate5m < 0.95
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "SLO latency violation"
+          description: "Latency SLI is {{ $value }}, below 95% of requests under 100ms SLO"

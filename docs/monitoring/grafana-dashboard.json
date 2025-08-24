@@ -1,0 +1,295 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "EU-USA Data Pipeline Dashboard",
+    "tags": [
+      "data-pipeline",
+      "deno",
+      "production"
+    ],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "System Overview",
+        "type": "stat",
+        "gridPos": {
+          "h": 6,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "up{job=\"data-pipeline\"}",
+            "legendFormat": "Service Status",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "colorMode": "background",
+          "graphMode": "none",
+          "justifyMode": "center",
+          "orientation": "horizontal",
+          "reduceOptions": {
+            "values": false,
+            "calcs": [
+              "lastNotNull"
+            ]
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Request Rate",
+        "type": "graph",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 6
+        },
+        "targets": [
+          {
+            "expr": "rate(http_requests_total[5m])",
+            "legendFormat": "{{method}} {{status}}",
+            "refId": "A"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Requests/sec",
+            "min": 0
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Response Times",
+        "type": "graph",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 6
+        },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(http_request_duration_ms_bucket[5m]))",
+            "legendFormat": "50th percentile",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(http_request_duration_ms_bucket[5m]))",
+            "legendFormat": "95th percentile",
+            "refId": "B"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(http_request_duration_ms_bucket[5m]))",
+            "legendFormat": "99th percentile",
+            "refId": "C"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Milliseconds",
+            "min": 0
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Error Rate",
+        "type": "graph",
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 0,
+          "y": 14
+        },
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{status=~\"5..\"}[5m]) / rate(http_requests_total[5m]) * 100",
+            "legendFormat": "5xx Error Rate %",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(http_requests_total{status=~\"4..\"}[5m]) / rate(http_requests_total[5m]) * 100",
+            "legendFormat": "4xx Error Rate %",
+            "refId": "B"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Percentage",
+            "min": 0,
+            "max": 100
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Circuit Breaker Status",
+        "type": "stat",
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 8,
+          "y": 14
+        },
+        "targets": [
+          {
+            "expr": "circuit_breakers_healthy",
+            "legendFormat": "Healthy",
+            "refId": "A"
+          },
+          {
+            "expr": "circuit_breakers_degraded",
+            "legendFormat": "Degraded",
+            "refId": "B"
+          },
+          {
+            "expr": "circuit_breakers_failed",
+            "legendFormat": "Failed",
+            "refId": "C"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Memory Usage",
+        "type": "graph",
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 16,
+          "y": 14
+        },
+        "targets": [
+          {
+            "expr": "system_memory_total_bytes - system_memory_available_bytes",
+            "legendFormat": "Memory Used",
+            "refId": "A"
+          },
+          {
+            "expr": "system_memory_available_bytes",
+            "legendFormat": "Memory Available",
+            "refId": "B"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Bytes",
+            "min": 0
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Conversion Metrics",
+        "type": "graph",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 20
+        },
+        "targets": [
+          {
+            "expr": "rate(conversions_total{type=\"currency\"}[5m])",
+            "legendFormat": "Currency Conversions",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(conversions_total{type=\"units\"}[5m])",
+            "legendFormat": "Unit Conversions",
+            "refId": "B"
+          },
+          {
+            "expr": "rate(conversions_total{type=\"dates\"}[5m])",
+            "legendFormat": "Date Conversions",
+            "refId": "C"
+          },
+          {
+            "expr": "rate(conversions_total{type=\"addresses\"}[5m])",
+            "legendFormat": "Address Conversions",
+            "refId": "D"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Cache Performance",
+        "type": "graph",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 20
+        },
+        "targets": [
+          {
+            "expr": "rate(cache_hits_total[5m]) / (rate(cache_hits_total[5m]) + rate(cache_misses_total[5m])) * 100",
+            "legendFormat": "Cache Hit Rate %",
+            "refId": "A"
+          },
+          {
+            "expr": "cache_entries",
+            "legendFormat": "Cache Entries",
+            "refId": "B"
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Top Endpoints by Requests",
+        "type": "table",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 28
+        },
+        "targets": [
+          {
+            "expr": "topk(10, sum by (path) (rate(http_requests_total[5m])))",
+            "format": "table",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Service Health Timeline",
+        "type": "graph",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 28
+        },
+        "targets": [
+          {
+            "expr": "process_uptime_seconds",
+            "legendFormat": "Uptime (seconds)",
+            "refId": "A"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Seconds",
+            "min": 0
+          }
+        ]
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s",
+    "schemaVersion": 30,
+    "version": 1
+  }
+}
