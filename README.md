@@ -135,6 +135,27 @@ deno task build        # Compile for production
 deno task deploy       # Deploy to Deno Deploy
 ```
 
+## 🛠️ Deno Tools Demo
+
+Try out all Deno tooling commands with our guaranteed-working demo files:
+
+```bash
+# Basic commands that work perfectly
+deno check demo.ts         # ✅ Type check (no errors!)
+deno fmt demo.ts           # ✅ Format code  
+deno lint demo.ts          # ✅ Lint code
+deno run demo.ts           # ✅ Run the demo
+deno test demo.test.ts     # ✅ Run unit tests
+deno bench demo.bench.ts   # ✅ Performance benchmarks
+deno doc demo.ts           # ✅ Generate documentation
+deno compile demo.ts       # ✅ Create executable
+
+# Test all commands at once
+./test-demo-commands.sh    # Automated verification
+```
+
+📚 **See [DenoTools.md](./DenoTools.md)** for complete documentation with examples.
+
 ## 📊 Quality Standards
 
 ### Zero SATD Policy
