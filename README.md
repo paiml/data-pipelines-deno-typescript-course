@@ -156,6 +156,68 @@ deno compile demo.ts       # ✅ Create executable
 
 📚 **See [DenoTools.md](./DenoTools.md)** for complete documentation with examples.
 
+## ⚡ Deno Task Runner Demo
+
+Explore Deno's powerful task runner with our comprehensive examples:
+
+```bash
+# Demo tasks (guaranteed to work)
+deno task demo:basic       # ✅ Run the demo app
+deno task demo:test        # ✅ Run demo tests  
+deno task demo:bench       # ✅ Run demo benchmarks
+deno task demo:all         # ✅ Run all demo tasks
+
+# Development workflow
+deno task dev              # Start with file watching
+deno task serve            # Start HTTP server
+deno task quality          # Run all quality checks
+deno task build            # Build for production
+
+# Advanced task pipelines
+deno task pipeline:quality # Format → Lint → Check → Test
+deno task pipeline:build   # Quality checks → Build
+deno task pipeline:deploy  # Build → Deploy to staging
+
+# Utility tasks
+deno task clean            # Clean build artifacts
+deno task health           # Run health checks
+deno task info             # Show project information
+```
+
+🔗 **See [DemoTasks.md](./DemoTasks.md)** for complete task runner documentation with 50+ examples.
+
+## 🎨 Ruchy Language Integration Demo
+
+Explore advanced cross-language integration with our Ruchy programming language demo:
+
+```bash
+# Ruchy integration demo
+deno task ruchy:demo           # ✅ Complete Deno × Ruchy integration
+deno task ruchy:demo:shell     # ✅ Interactive Ruchy shell via Deno
+
+# Direct Ruchy commands (requires ruchy installation)
+deno task ruchy:check          # Check if Ruchy is installed
+deno task ruchy:eval           # Evaluate Ruchy expressions
+deno task ruchy:repl           # Start Ruchy REPL
+deno task ruchy:run            # Run Ruchy scripts
+deno task ruchy:fmt            # Format Ruchy code
+deno task ruchy:test           # Run Ruchy tests
+deno task ruchy:ast            # Generate AST from Ruchy code
+
+# Install Ruchy (requires Rust)
+cargo install ruchy           # Install from crates.io
+```
+
+**Demo Features:**
+- 🔄 **Bi-directional Integration**: Deno TypeScript invokes Ruchy language
+- ⚡ **Performance Comparison**: Fibonacci benchmarks between languages
+- 🧪 **Code Examples**: Currency conversion, pattern matching, functional programming
+- 🌳 **AST Generation**: Parse and analyze Ruchy code structure
+- 🎯 **Error Handling**: Comprehensive error reporting and validation
+- 🔍 **Syntax Checking**: Validate Ruchy code before execution
+
+📋 **See [ruchy-demo.ts](./ruchy-demo.ts)** for complete implementation and examples.
+
 ## 📊 Quality Standards
 
 ### Zero SATD Policy

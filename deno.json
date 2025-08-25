@@ -24,7 +24,61 @@
     "deploy": "deployctl deploy --project=eu-usa-pipeline src/main.ts",
     "cli": "deno run --allow-all src/cli/pipeline-cli.ts",
     "pipeline:server": "deno run --allow-all src/cli/pipeline-cli.ts --server",
-    "pipeline:convert": "deno run --allow-all src/cli/pipeline-cli.ts"
+    "pipeline:convert": "deno run --allow-all src/cli/pipeline-cli.ts",
+    
+    "demo:basic": "deno run demo.ts",
+    "demo:test": "deno test demo.test.ts", 
+    "demo:bench": "deno bench demo.bench.ts",
+    "demo:all": "deno task demo:basic && deno task demo:test && deno task demo:bench",
+    
+    "dev:watch": "deno run --watch --allow-all src/main.ts",
+    "dev:debug": "deno run --inspect --allow-all src/main.ts",
+    "serve": "deno run --allow-net --allow-read src/main.ts",
+    "serve:8080": "PORT=8080 deno run --allow-net --allow-read src/main.ts",
+    
+    "test:unit": "deno test --allow-all src/**/*.test.ts",
+    "test:integration": "deno test --allow-all tests/integration/",
+    "test:e2e": "deno test --allow-all tests/e2e/",
+    "test:perf": "deno task bench && deno task test:performance",
+    "coverage:html": "deno coverage coverage --html",
+    
+    "build:prod": "deno compile --allow-all --no-check --output=dist/pipeline-prod src/main.ts",
+    "build:debug": "deno compile --allow-all --output=dist/pipeline-debug src/main.ts",
+    "build:docker": "docker build -t eu-usa-pipeline .",
+    "build:all": "deno task build && deno task build:prod",
+    
+    "deploy:dev": "deployctl deploy --project=eu-usa-pipeline-dev src/main.ts",
+    "deploy:staging": "deployctl deploy --project=eu-usa-pipeline-staging src/main.ts", 
+    "deploy:prod": "deployctl deploy --project=eu-usa-pipeline-prod src/main.ts",
+    
+    "clean": "deno run --allow-read --allow-write scripts/clean.ts",
+    "clean:coverage": "rm -rf coverage",
+    "clean:dist": "rm -rf dist",
+    "clean:all": "deno task clean:coverage && deno task clean:dist",
+    
+    "docs": "deno doc --html --name=\"EU-USA Pipeline\" src/",
+    "docs:json": "deno doc --json src/ > docs.json",
+    
+    "health": "deno run --allow-net scripts/health-check.ts",
+    "info": "deno info src/main.ts",
+    "deps": "deno info --json src/main.ts | jq '.modules | length'",
+    
+    "fix": "deno fmt && deno lint --fix",
+    "validate": "deno task check && deno task lint && deno task fmt:check",
+    
+    "pipeline:quality": "deno task fmt:check && deno task lint && deno task check && deno task test",
+    "pipeline:build": "deno task pipeline:quality && deno task build",
+    "pipeline:deploy": "deno task pipeline:build && deno task deploy:staging",
+    
+    "ruchy:demo": "deno run --allow-all ruchy-demo.ts",
+    "ruchy:demo:shell": "deno run --allow-all ruchy-demo.ts --shell",
+    "ruchy:check": "ruchy --version",
+    "ruchy:eval": "ruchy -e",
+    "ruchy:repl": "ruchy repl",
+    "ruchy:run": "ruchy run",
+    "ruchy:fmt": "ruchy fmt",
+    "ruchy:test": "ruchy test",
+    "ruchy:ast": "ruchy ast --json"
   },
   "compilerOptions": {
     "strict": true,
